@@ -226,14 +226,233 @@ This is a recursive algorithm.
 ;Value: 482
 
 
-      
+; Problem 4
+
+#|
+(a) Order of growth in time: (O n)  [by this I mean what would commonly be written as O(n), but I want to use prefix notation here!]. This is because the program has to check each integer k, where 2 <= k <= n, and determine if k is a factor of n. Assuming that (remainder k n) is a constant-time operation with respect to k and n (which is probably not quite true, but likely to be small, perhaps logarithmic in n), then we can see that `remainder' will be called up to n times.
+    Order of growth in space: (O 1).
+       This is because the process evolves as follows:
+        (slow-prime? 5)
+        (test-factors 5 2)
+        (test-factors 5 3)
+        (test-factors 5 4)
+        (test-factors 5 5)
+        #t
+ 
+      The process just replaces k each time with (+ k 1), so there is no need for extra space to be used other than that used to make the original call to `test-factors'.
+
+     slow-prime? uses an iterative algorithm.
+
+(b) Ben's suggestion of only checking factors less than or equal to (sqrt n) would make the order of growth in time be (O (sqrt n)).
+
+(c) Checking only odd factors and 2 would cut the execution time in half. In terms of order of growth, this would not make any difference. For (O (/ n 2)) is the same as (O n), and (O ((sqrt n) 2)) is the same as (O (sqrt n)).
+
+|#
+
+; (d) Test Fermat's Little Theorem:
+
+(define (from-a-to-b a b)
+  (cond
+   ((< a b) (cons a (from-a-to-b (+ a 1) b)))
+   ((= a b) (list b))
+   (else '())))
+
+(define (fermat-check-all-cases p)
+  (let ((expt-p (exptmod p)))
+    (map (lambda (a)
+	   (= a
+	      (expt-p a p)))
+	 (from-a-to-b 0 (- p 1)))))
 
 
+(fermat-check-all-cases 5)
+;Value 18: (#t #t #t #t #t)
+
+(fermat-check-all-cases 17)
+;Value 19: (#t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t #t)
+
+; Fermat's little theorem seems to hold when p is prime.
+
+(fermat-check-all-cases 6)
+;Value 20: (#t #t #f #t #t #f)
+
+; And it doesn't hold in this case when p = 6 (a composite number).
 
 
+; (e)
+
+(define prime-test-iterations 20)
+
+(define prime?-iter
+      (lambda (p n-iter)
+	(cond
+	 ((< p 2) #f)
+	 ((<= n-iter 0) #t)
+	 (else
+	    (let ((a (big-random (- p 1))))
+	      (if (= ((exptmod p) a p) a)
+		  (prime?-iter p (- n-iter 1))
+		  #f))))))
+	    
+
+(define prime?
+  (lambda (p)
+    (prime?-iter p 20)))
 
 
+(prime? 1)
+;Value: #f
+
+(prime? 0)
+;Value: #f
+
+(prime? 2)
+;Value: #t
+
+(prime? 4)
+;Value: #f
+
+(prime? 200)
+;Value: #f
+
+(prime? 199)
+;Value: #t
+
+(prime? -1)
+;Value: #f
+
+(prime? -7)
+;Value: #f
+
+;; Don't care about negative numbers; they can't be prime by definition.
+
+; (f) Order of growth in time: 
+; 20 tests of p satisfying Fermat's little theorem.
+; Each test involves:
+;  Randomly generating a value for a < p
+;    counting the digits of `p': (O (log p))
+;    Generating a random number of that many digits, and testing that it's less than p: (O (log p))
+;  Testing the value for `a' (check whether a^p = a (mod p)). Exponentiate by repeated squaring: (O (log p)).
+; Thus the total running time is (O (* 20 (log p))), or (O (log p)).
+; Quite a speed-up from the (O (sqrt p)) order of growth in time with Ben Bitdittle's proposals!
+
+; Order of growth in space: (O (log p)), which provides bits to record the value of p, which may be large.
+
+; This procedure uses an iterative algorithm.
 
 
+; Problem 5
+
+(define random-k-digit-prime
+  (lambda (k)
+    (let ((n (random-k-digit-number k)))
+      (if (prime? n)
+	  n
+	  (random-k-digit-prime k)))))
+
+; Types of failure:
+;   - getting unlucky and either taking a long time or never returning at all, due to the random numbers generated repeatedly being composite
+;   - returning a composite number but reporting it to be prime (a Carmichael Number)
+
+(random-k-digit-prime 2)
+;Value: 5
+
+(random-k-digit-prime 3)
+;Value: 839
+
+;Value: 2
+
+(random-k-digit-prime 1)
+;Value: 2
+
+(random-k-digit-prime 2)
+;Value: 7
+
+(random-k-digit-prime 10)
+;Value: 8967067379
+
+(count-digits (random-k-digit-prime 100))
+;Value: 100
+
+(count-digits (random-k-digit-prime 100))
+;Value: 100
+
+(count-digits (random-k-digit-prime 100))
+;Value: 100
+
+(count-digits (random-k-digit-prime 100))
+;Value: 100
+
+(count-digits (random-k-digit-prime 100))
+;Value: 100
 
 
+; Problem 6
+
+(define ax+by=1
+  (lambda (a b)
+    (let ((q (quotient a b))
+	  (r (remainder a b)))
+      (if (= r 1)
+	  (list r (- q))
+	  (let ((sol (ax+by=1 b r)))
+	    (list (cadr sol)
+		  (- (car sol) (* q (cadr sol)))))))))
+
+; Tests
+
+
+(ax+by=1 17 13)
+;Value 31: (-3 4)
+
+(ax+by=1 7 3)
+;Value 32: (1 -2)
+
+(ax+by=1 10 27)
+;Value 33: (-8 3)
+
+(define (inversemod n)
+  (lambda (e)
+    (if (not (= (gcd e n) 1))
+	(error "inversemod requires (= (gcd e n) 1)")
+	; find d such that ed = 1 (mod n)
+	; means ed + nk = 1 for some int. k
+	(modulo (car (ax+by=1 e n)) n))))
+
+
+((inversemod 11) 5)
+;Value: 9
+
+((inversemod 11) 9)
+;Value: 5
+
+((inversemod 11) 7)
+;Value: 8
+
+((inversemod 12) 5)
+;Value: 5
+
+((inversemod 12) 8)
+;inversemod requires (= (gcd e n) 1)
+;To continue, call RESTART with an option number:
+; (RESTART 8) => Return to read-eval-print level 8.
+; (RESTART 7) => Return to read-eval-print level 7.
+; (RESTART 6) => Return to read-eval-print level 6.
+; (RESTART 5) => Return to read-eval-print level 5.
+; (RESTART 4) => Return to read-eval-print level 4.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+(random-k-digit-prime 2)
+;Value: 61
+
+((inversemod 101) 61)
+;Value: 53
+
+(*mod 53 61 101)
+;Value: 1
+
+
+; Problem 7
