@@ -1,3 +1,7 @@
+;;;; Blake Elias
+;;;; 6.945 Problem Set 0
+;;;; February 17, 2017
+
 (load "~/Dropbox (MIT)/Classes/6.945/ps00/p0utils.scm")
 
 #|
@@ -491,3 +495,42 @@ This is a recursive algorithm.
 ;Value 48: "Hi there, Alyssa. 1234567890 0123456789 0"
 ;;; This is the longest string I can send that will be correctly decrypted with a 100 digit system. It is indeed not too long!
 
+
+; Problem 8
+
+(define Eve-Alyssa (Eve Alyssa))
+
+(define (Eve-il receiver)
+  (let ((receiver-public-key
+	 (eg-receiver-public-key receiver))
+	(receiver-decryption-procedure
+	 (eg-receiver-decryption-procedure receiver)))
+    (let ((dh-system (eg-public-key-system receiver-public-key)))
+      (let ((my-receiver (eg-receiver dh-system)))
+	(let ((my-public-key (eg-receiver-public-key my-receiver))
+	      (my-decryption-procedure
+	       (eg-receiver-decryption-procedure my-receiver)))
+	  (let ((my-spying-procedure
+		 (lambda (ciphertext)
+		   (let ((message (my-decryption-procedure ciphertext)))
+		     (write message)
+		     (newline)
+		     (eg-send-message (string-append message ", good friend ;)") receiver))))) 
+	    (eg-make-receiver my-public-key
+			      my-spying-procedure)))))))
+
+(define Eve-il-Alyssa (Eve-il Alyssa))
+
+
+(eg-send-message "Hi there." Eve-il-Alyssa)
+"Hi there."
+;Value 57: "Hi there., good friend ;)"
+
+;; I have defined Eve-il to be the evil version of Eve.
+;; (The first string is the original string that was sent, which Eve-il can now print out.
+;; The second string, the returned value, is the original message with something else appended by Eve-il (", good friend ;)").
+;; The nasty trick is that Eve-il makes her own receiver to wrap around Alice's,
+;; presenting her own public key to Ben. 
+;; Eve-il's decryption procedure proceeds to decrypt Ben's message, print it out,
+;; then re-encrypt it (with some extra stuff appended) and send it to Alyssa,
+;; who is none-the-wiser to this.
