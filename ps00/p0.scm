@@ -456,3 +456,38 @@ This is a recursive algorithm.
 
 
 ; Problem 7
+
+(define (eg-send-message message receiver)
+  (let ((public-key (eg-receiver-public-key receiver))
+	(decryption-procedure (eg-receiver-decryption-procedure receiver)))
+    (let ((dh-system (eg-public-key-system public-key))
+	  (receiver-advertised-number (eg-public-key-number public-key)))
+      (let ((p (dh-system-prime dh-system))
+	    (a (dh-system-primitive-root dh-system))
+	    (k (dh-system-size dh-system)))
+	(let ((my-secret (random-k-digit-number k))
+	      (mod-expt (exptmod p))
+	      (mod-* (modular p *)))
+	  (decryption-procedure
+	   (eg-make-ciphertext (mod-expt a my-secret) 
+			       (mod-* (string->integer message)
+				      (mod-expt
+				       receiver-advertised-number
+				       my-secret)))))))))
+
+(define dh-system (public-dh-system 100))
+(define Alyssa (eg-receiver dh-system))
+
+(eg-send-message "Hi there." Alyssa)
+;Value 40: "Hi there."
+
+(eg-send-message "Hi there, Alyssa. 1234567890 0123456789" Alyssa)
+;Value 46: "Hi there, Alyssa. 1234567890 0123456789"
+
+(eg-send-message "Hi there, Alyssa. 1234567890 0123456789 00" Alyssa)
+;Value 47: "¬Q\016à­c\017²Ô$$\022´²ÀAÊ\210à°Æ}\210°P\nªDÍ|ð°\024x_Ã\213´\223/_"
+
+(eg-send-message "Hi there, Alyssa. 1234567890 0123456789 0" Alyssa)
+;Value 48: "Hi there, Alyssa. 1234567890 0123456789 0"
+;;; This is the longest string I can send that will be correctly decrypted with a 100 digit system. It is indeed not too long!
+
