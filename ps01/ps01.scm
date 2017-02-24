@@ -157,8 +157,13 @@
      is either a single character, or already has parens or brackets
      around it. Otherwise, they do need to add parens around it.
 
-
 |#
+
+; Problem 1.4: Back-references
+
+(define (r:back-ref n)
+  (string-append "\\" (number->string n)))
+
 
 #|
 (define (r:seq . exprs)
