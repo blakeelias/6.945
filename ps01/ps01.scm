@@ -164,6 +164,37 @@
 (define (r:back-ref n)
   (string-append "\\" (number->string n)))
 
+(r:seq (r:quote "a") (r:dot) (r:quote "c") 
+       (r:seq (r:* (r:quote "xy")))
+       (r:back-ref 1))
+
+; Problem 1.5: Ugh!
+
+; (a) Siginificant differences include:
+;     In BRE, you have to escape all of (, ), {, |, + and ? in order for
+;       them to behave as special characters (otherwise they'll be literally matched).
+;     while in ERE, you have to leave them unescaped for them to have their special meaning (and have to escape them if you want to literally match them)
+;     BRE allows matching of the $ sign either with \$ or [$],
+;     ERE allows matching of the $ sign only with [$]
+;     
+;     BRE does not support alternation (|)
+;     ERE does not support back-references
+
+
+; (b) 
+
+; Can have an argument to each function that marks whether this is to be done in BRE or ERE, and have it appropriately escape things. As for missing features (i.e. BRE not supporting alternation, ERE not supporting back-references), these will be allowed to pass through regardless. I maybe should have that throw an error... but, because we were already allowing alternation in BREs despite it not being part of the spec, and it seems that many ERE implementations also allow back-references... doesn't seem too dangerous to let them through. Allowing some types of cheating but not others would be even more confusing. There's already enough confusion as to what's allowed where; I'm choosing not to have my code introduce more complication around that. Everything will be allowed through, it'll just depend on the underlying grep/egrep as to whether it'll work -- this code will do its best to put it into the appropriate format based on the choice of BRE or ERE, and then step aside.
+
+; (c)
+
+(define (parenthesized? expr standard)
+  (case standard
+    ('ere
+     (and (string=? "(" (string-head expr 1))
+	  (string=? ")" (string-tail expr (- (string-length expr) 1)))))
+    ('bre
+     (and (string=? "\\(" (string-head expr 2))
+	  (string=? "\\)" (string-tail expr (- (string-length expr) 2)))))))
 
 #|
 (define (r:seq . exprs)
