@@ -91,9 +91,14 @@
 
 (define parenthesize r:seq)
 
-(define (parenthesized? expr)
-  (and (string=? "\\(" (string-head expr 2))
-       (string=? "\\)" (string-tail expr (- (string-length expr) 2)))))
+(define (parenthesized? expr standard)
+  (case standard
+    ('ere
+     (and (string=? "(" (string-head expr 1))
+	  (string=? ")" (string-tail expr (- (string-length expr) 1)))))
+    ('bre
+     (and (string=? "\\(" (string-head expr 2))
+	  (string=? "\\)" (string-tail expr (- (string-length expr) 2)))))))
 
 (define (bracketed? expr)
   (and (string=? "\[" (string-head expr 1))
@@ -187,7 +192,41 @@
 
 ; (c)
 
-(define (parenthesized? expr standard)
+(define (r:seq . (standard . exprs))
+  (string-append 
+   (case standard
+     ('bre "\\(")
+     ('ere "("))
+   (apply string-append exprs)
+   (case standard
+     ('bre "\\)")
+     ('ere ")"))))
+
+	 (define (r:repeat min max expr)
+	   (apply r:seq
+	          (append (make-list min expr)
+	                  (if (eqv? max min)
+	                      '()
+	                      (if max
+	                          (make-list (- max min)
+	                                     (r:alt expr ""))
+	                          (list expr "*"))))))
+							  
+(define (r:repeat standard min max expr)
+  (apply r:seq
+	 (list
+	  expr
+	  "\\\{"
+	  (number->string min)
+	  ","
+	  (if max
+	      (number->string max)
+	      "")
+	  "\\\}")))
+
+(define parenthesize r:seq)
+
+(define (parenthesized? standard expr)
   (case standard
     ('ere
      (and (string=? "(" (string-head expr 1))
@@ -195,6 +234,14 @@
     ('bre
      (and (string=? "\\(" (string-head expr 2))
 	  (string=? "\\)" (string-tail expr (- (string-length expr) 2)))))))
+
+(define (parenthesize-if-needed standard expr)
+  (if (or
+       (= (string-length expr) 1)
+       (parenthesized? standard expr)
+       (bracketed? expr))
+      expr
+      (parenthesize standard expr)))
 
 #|
 (define (r:seq . exprs)
@@ -223,4 +270,5 @@
 (define (r:char-not-from string)
   (list 'r:char-not-from string))
 |#
+
 
