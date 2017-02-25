@@ -1,6 +1,8 @@
-(load "~/Dropbox (MIT)/Classes/6.945/ps01/regexp.scm")
+(load "~/Dropbox (MIT)/Classes/6.945/ps01/regexp.scm") ; change this to reflect the directory you are running this from!
 
 ; Problem 1.5 (c)
+
+; This code relies on some custom modifications I made to regexp.scm to allow running with grep vs. egrep
 
 (define (r:dot standard) ".")
 (define (r:bol standard) "^")
@@ -138,6 +140,9 @@
        (r:back-ref std 1))
 	   
 ; this appears to return correct regular expressions. Just annoying that you have to keep passing in `std'
+; Below, I define a function that adds in the `std' argument everywhere it is needed, so that a user can just deal
+; with code that doesn't have any ERE vs. BRE business, and then compile it later using `(add-args code standard)'
+; where they will pass in their code and an argument indicating ERE vs. BRE.
 
 (define (add-args code std)
 	(cond
@@ -154,14 +159,25 @@
 
 (define code
 	'(r:seq 
-	          (r:quote  "a") (r:dot ) (r:quote  "c") 
-	          (r:seq  (r:*  (r:quote  "xy")))
-	          (r:back-ref  1)))
+	      (r:quote  "a") (r:dot ) (r:quote  "c") 
+		  (r:seq  (r:*  (r:quote  "xy")))))
 
 
 (eval (add-args code bre) (the-environment))
-;Value 22: "\\(a.c\\(\\(xy\\)\\{0,\\}\\)\\1\\)"
+;Value 65: "\\(a.c\\(\\(xy\\)\\{0,\\}\\)\\)"
 
 (eval (add-args code ere) (the-environment))
-;Value 23: "(a.c((xy){0,})\\1)"
+;Value 66: "(a.c((xy){0,}))"
 
+(define expr1 (eval (add-args code bre) (the-environment)))
+(define expr2 (eval (add-args code ere) (the-environment)))
+
+(define filename "test.txt")
+
+(r:grep bre expr1 filename)
+;Value 69: ("abc" "a$c" "abcxyxy" "abcxy")
+
+(r:grep ere expr2 filename)
+;Value 70: ("abc" "a$c" "abcxyxy" "abcxy")
+
+; et voilà! QED. Compiling a general expression into either ERE or BRE, which yield different syntaxes, indeed return the same result when run through grep vs egrep.

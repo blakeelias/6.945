@@ -88,6 +88,12 @@
                  " "
                  filename))
 
+(define (bourne-shell-grep-command-string-ere expr filename)
+  (string-append "grep -Ee "
+                 (bourne-shell-quote-string expr)
+                 " "
+                 filename))
+
 ;;; Works for any string without newlines.
 (define (bourne-shell-quote-string string)
   (list->string
@@ -105,10 +111,13 @@
 
 (load-option 'synchronous-subprocess)
 
-(define (r:grep expr filename)
-  (let ((port (open-output-string)))
+(define (r:grep standard expr filename)
+  (let ((port (open-output-string))
+	    (command-string (if (eq? standard 'bre)
+		                    bourne-shell-grep-command-string
+							bourne-shell-grep-command-string-ere)))
     (and (= (run-shell-command
-             (bourne-shell-grep-command-string expr filename)
+             (command-string expr filename)
              'output port)
             0)
 	 (r:split-lines (get-output-string port)))))
