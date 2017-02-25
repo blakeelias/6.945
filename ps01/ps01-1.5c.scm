@@ -1,3 +1,5 @@
+(load "~/Dropbox (MIT)/Classes/6.945/ps01/regexp.scm")
+
 ; Problem 1.5 (c)
 
 (define (r:dot standard) ".")
@@ -140,11 +142,14 @@
 (define (add-args code std)
 	(cond
 		((eq? code '()) '())
-		((and (list? code)
-			  (memv (car code) '(r:+ r:* r:repeat r:char-not-from r:char-from r:quote r:seq r:alt r:back-ref r:dot r:bol r:eol)))
-			  (append (list (car code) std)
-				      (map (lambda (expr) (add-args expr std))
-						   (cdr code))))
+		((list? code)
+			(if (memv (car code) '(r:+ r:* r:repeat r:char-not-from r:char-from r:quote r:seq r:alt r:back-ref r:dot r:bol r:eol))
+			  	(append (list (car code) std)
+				      	(map (lambda (expr) (add-args expr std))
+						   	 (cdr code)))
+				(append (cons (add-args (car code) std)
+		 				      (map (lambda (expr) (add-args expr std))
+		 						   (cdr code))))))
 	    (else code)))
 
 (define code
