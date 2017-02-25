@@ -16,17 +16,15 @@
     (else (list char))))
 
 (define (r:quote standard string)
-  (r:seq
-   standard
    (list->string
-    (append-map (lambda (char)
-                  (quote-char standard char))
-                (string->list string)))))
+       (append-map (lambda (char)
+                     (quote-char standard char))
+                (string->list string))))
 
-(define (r:char-from string)
+(define (r:char-from standard string)
   (case (string-length string)
-    ((0) (r:seq))
-    ((1) (r:quote string))
+    ((0) (r:seq standard))
+    ((1) (r:quote standard string))
     (else
      (bracket string
               (lambda (members)
@@ -34,7 +32,7 @@
                     '(#\- #\^)
                     (quote-bracketed-contents members)))))))
 
-(define (r:char-not-from string)
+(define (r:char-not-from standard string)
   (bracket string
            (lambda (members)
              (cons #\^ (quote-bracketed-contents members)))))
@@ -95,11 +93,15 @@
      (and (string=? "\\(" (string-head expr 2))
 	      (string=? "\\)" (string-tail expr (- (string-length expr) 2)))))))
 
+(define (bracketed? standard expr)
+	(and (string=? "[" (string-head expr 1))
+	      (string=? "]" (string-tail expr (- (string-length expr) 1)))))
+
 (define (parenthesize-if-needed standard expr)
   (if (or
        (= (string-length expr) 1)
        (parenthesized? standard expr)
-       (bracketed? expr))
+       (bracketed? standard expr))
       expr
       (parenthesize standard expr)))
 
@@ -151,6 +153,10 @@
 	          (r:seq  (r:*  (r:quote  "xy")))
 	          (r:back-ref  1)))
 
-(add-args code std)
 
-(eval (add-args code std) (the-environment))
+(eval (add-args code bre) (the-environment))
+;Value 22: "\\(a.c\\(\\(xy\\)\\{0,\\}\\)\\1\\)"
+
+(eval (add-args code ere) (the-environment))
+;Value 23: "(a.c((xy){0,})\\1)"
+
