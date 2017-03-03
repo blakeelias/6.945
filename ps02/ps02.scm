@@ -14,7 +14,7 @@
     (let ((procedure
 	   (case operator
 	     ((+) (lambda (x y) (or x y)))
-	     ((-) (lambda (x) (not x)))
+	     ((-) (lambda (x y) (not x)))
 	     ((*) (lambda (x y) (and x y)))
 	     (else #f))))
       (and procedure
