@@ -16,7 +16,7 @@
     (let ((procedure
 	   (case operator
 	     ((+) (lambda (x y) (or x y)))
-	     ((-) (lambda (x y) (not x)))
+	     ((-) (lambda (x) (not x)))
 	     ((*) (lambda (x y) (and x y)))
 	     ((negate) (lambda (x) (not x)))
 	     (else
@@ -47,16 +47,7 @@
 (- #f)
 ;Value: #t
 
-(- #t #f)
-;Value: #f
 
-(- #f #f)
-;Value: #t
-
-(- #f #t)
-;Value: #t
-
-(- #t #t)
-;Value: #f
+;;; Problem 2.2
 
 
