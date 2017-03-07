@@ -18,10 +18,45 @@
 	     ((+) (lambda (x y) (or x y)))
 	     ((-) (lambda (x y) (not x)))
 	     ((*) (lambda (x y) (and x y)))
-	     (else #f))))
+	     ((negate) (lambda (x) (not x)))
+	     (else
+	      (lambda args
+		(error "Operator undefined in Boolean" operator))))))
       (and procedure
 	   (simple-operation operator boolean? procedure))))))
 
 (install-arithmetic! boolean-arithmetic)
 
 ; (install-arithmetic! symbolic-arithmetic-1)
+
+;;; Tests of 2.1:
+
+
+(+ #t #f)
+;Value: #t
+
+(* #t #t)
+;Value: #t
+
+(* #t #f)
+;Value: #f
+
+(- #t)
+;Value: #f
+
+(- #f)
+;Value: #t
+
+(- #t #f)
+;Value: #f
+
+(- #f #f)
+;Value: #t
+
+(- #f #t)
+;Value: #t
+
+(- #t #t)
+;Value: #f
+
+
