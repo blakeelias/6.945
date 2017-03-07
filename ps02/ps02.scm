@@ -9,7 +9,6 @@
 		   (lambda (name)
 		     (case name
 		       ((additive-identity) #f)
-		       ((negate) #t)
 		       ((multiplicative-identity) #t)
 		       (else (default-object))))
   (lambda (operator)
