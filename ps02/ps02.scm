@@ -79,6 +79,9 @@
   (list->vector
    (map sum (zip (vector->list vector1) (vector->list vector2)))))
 
+(v:+ #(1 2 3) #(4 5 6))
+;Value 181: #(5 7 9)
+
 
 #|
 (define vector-arithmetic
