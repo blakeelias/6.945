@@ -72,7 +72,7 @@
 ((vector-element-wise (lambda (x) (n:* x 2))) #(1 2 3))
 ;Value 153: #(2 4 6)
 
-(define (sum l) (reduce n:+ 0 l))
+(define (sum l) (reduce + 0 l))
 
 (define (v:+ vector1 vector2)
   (ensure-vector-lengths-match (list vector1 vector2))
