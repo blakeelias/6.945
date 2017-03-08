@@ -101,38 +101,45 @@
 
 
 
+(define (vector-extender base-arithmetic)
+  (make-arithmetic 'vector vector? (list base-arithmetic)
+    (lambda (name base-constant)
+      base-constant)
+    (let ((base-predicate
+	   (arithmetic-domain-predicate base-arithmetic)))
+      (lambda (operator base-operation)
+	(simple-operation
+	  operator
+	  vector?
+	  (case operator
+	    ((+) (lambda (x y) (v:+ x y)))
+	    ((-) (lambda (x y) (v:- x y)))
+	    ; ((*) (lambda (x y) (vec-dot x y)))
+	    ((negate) (lambda (x) (v:negate x)))
+	    (else
+	     (lambda args
+	       (error "Operator undefined in Vector" operator)))))))))
+
 (define vector-arithmetic
-  (make-arithmetic 'vector vector? '()
-		   (lambda (name)
-		     (case name
-		       ((additive-identity) 0)
-		       ((multiplicative-identity) 1)
-		       (else (default-object))))
-  (lambda (operator)
-    (let ((procedure
-	   (case operator
-	     ((+) (lambda (x y) (v:+ x y)))
-	     ((-) (lambda (x y) (v:- x y)))
-;	     ((*) (lambda (x y) (vec-dot x y)))
-	     ((negate) (lambda (x) (v:negate x)))
-	     (else
-	      (lambda args
-		(error "Operator undefined in Vector" operator))))))
-      (and procedure
-	   (simple-operation operator vector? procedure))))))
+  (extend-arithmetic vector-extender numeric-arithmetic))
 
 (install-arithmetic! vector-arithmetic)
 
-(+ #(1 2 3) #(4 5 6))
-;Value 238: #(5 7 9)
+;(+ #(1 2) #(3 4))
+;Value 366: #(4 6)
 
-(- #(1 2 3) #(4 5 6))
+;(+ 1 2)
+;Value: 3
+
+;(- #(1 2 3) #(4 5 6))
 ;Value 239: #(-3 -3 -3)
 
-(- #(1 2 3))
+;(- #(1 2 3))
 ;Value 240: #(-1 -2 -3)
 
+; (install-arithmetic! symbolic-vector-arithmetic)
 
-
+;(define symbolic-vector-arithmetic 
+;  (extend-arithmetic symbolic-extender vector-arithmetic))
 
 
