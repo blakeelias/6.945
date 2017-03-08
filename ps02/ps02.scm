@@ -92,6 +92,12 @@
 (v:negate #(1 2 4))
 ;Value 193: #(-1 -2 -4)
 
+(define (v:- vector1 vector2)
+  (v:+ vector1 (v:negate vector2)))
+
+(v:- #(1 2 5) #(3 4 6))
+;Value 203: #(-2 -2 -1)
+
 
 
 #|
