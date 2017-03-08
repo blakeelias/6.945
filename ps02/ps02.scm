@@ -137,9 +137,31 @@
 ;(- #(1 2 3))
 ;Value 240: #(-1 -2 -3)
 
-; (install-arithmetic! symbolic-vector-arithmetic)
+(define symbolic-vector-arithmetic 
+  (extend-arithmetic symbolic-extender vector-arithmetic))
 
-;(define symbolic-vector-arithmetic 
-;  (extend-arithmetic symbolic-extender vector-arithmetic))
+(install-arithmetic! symbolic-vector-arithmetic)
 
+;; Tests of symbolic vector arithmetic:
+
+(+ 1 2)
+;Value: 3
+
+(+ #(1 2) #(3 4))
+;Value 420: #(4 6)
+
+(- #(1 2 3))
+;Value 421: #(-1 -2 -3)
+
+(- #(1 2 3) #(4 5 6))
+;Value 422: #(-3 -3 -3)
+
+(+ 'a 'b)
+;Value 423: (+ a b)
+
+(+ 'a 1)
+;Value 424: (+ a 1)
+
+(+ #(1 2 3) #(4 b 6))
+;Value 427: #(5 (+ b 2) 9)
 
