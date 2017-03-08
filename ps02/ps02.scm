@@ -82,6 +82,17 @@
 (v:+ #(1 2 3) #(4 5 6))
 ;Value 181: #(5 7 9)
 
+(define (v:* scalar vec) ((vector-element-wise (lambda (x) (n:* x scalar))) vec))
+
+(v:* -1 #(1 2 3))
+;Value 184: #(-1 -2 -3)
+
+(define (v:negate vec) (v:* -1 vec))
+
+(v:negate #(1 2 4))
+;Value 193: #(-1 -2 -4)
+
+
 
 #|
 (define vector-arithmetic
