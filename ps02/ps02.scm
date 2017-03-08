@@ -72,7 +72,7 @@
 ((vector-element-wise (lambda (x) (n:* x 2))) #(1 2 3))
 ;Value 153: #(2 4 6)
 
-(define (sum l) (reduce + 0 l))
+(define (sum l) (reduce n:+ 0 l))
 
 (define (v:+ vector1 vector2)
   (ensure-vector-lengths-match (list vector1 vector2))
@@ -100,7 +100,7 @@
 
 
 
-#|
+
 (define vector-arithmetic
   (make-arithmetic 'vector vector? '()
 		   (lambda (name)
@@ -111,15 +111,18 @@
   (lambda (operator)
     (let ((procedure
 	   (case operator
-	     ((+) (lambda (x y) (vec-add x y)))
-	     ((-) (lambda (x y) (vec-sub x y)))
-	     ((*) (lambda (x y) (vec-dot x y)))
-	     ((negate) (lambda (x) (vec-mult x -1)))
+	     ((+) (lambda (x y) (v:+ x y)))
+	     ((-) (lambda (x y) (v:- x y)))
+;	     ((*) (lambda (x y) (vec-dot x y)))
+	     ((negate) (lambda (x) (v:negate x)))
 	     (else
 	      (lambda args
-		(error "Operator undefined in Boolean" operator))))))
+		(error "Operator undefined in Vector" operator))))))
       (and procedure
-	   (simple-operation operator boolean? procedure))))))
+	   (simple-operation operator vector? procedure))))))
 
 (install-arithmetic! vector-arithmetic)
-|#
+
+(+ #(1 2 3) #(4 5 6))
+;Value 238: #(5 7 9)
+
