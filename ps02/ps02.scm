@@ -104,7 +104,8 @@
     (sum
      (map product (zip (vector->list vector1) (vector->list vector2))))))
 
-
+(define (v:magnitude vector)
+  (sqrt (v:dot vector vector)))
 
 (define (vector-extender base-arithmetic)
   (make-arithmetic 'vector vector? (list base-arithmetic)
@@ -121,6 +122,7 @@
 	    ((-) (lambda (x y) (v:- x y)))
 	    ((*) (lambda (x y) (v:dot x y)))
 	    ((negate) (lambda (x) (v:negate x)))
+	    ((magnitude) (lambda (x) (v:magnitude x)))
 	    (else
 	     (lambda args
 	       (error "Operator undefined in Vector" operator)))))))))
@@ -178,7 +180,10 @@
 (* #(1 2 3) #(4 5 a))
 ;Value 604: (+ (* a 3) 14)
 
+; 2.2(d) Vector magnitude
 
+(magnitude #(1 1))
+;Value: 1.4142135623730951
 
 
 
