@@ -98,6 +98,11 @@
 (v:- #(1 2 5) #(3 4 6))
 ;Value 203: #(-2 -2 -1)
 
+(define (v:dot vector1 vector2)
+  (ensure-vector-lengths-match (list vector1 vector2))
+  (let ((product (lambda (l) (reduce * 1 l))))
+    (sum
+     (map product (zip (vector->list vector1) (vector->list vector2))))))
 
 
 
@@ -114,7 +119,7 @@
 	  (case operator
 	    ((+) (lambda (x y) (v:+ x y)))
 	    ((-) (lambda (x y) (v:- x y)))
-	    ; ((*) (lambda (x y) (vec-dot x y)))
+	    ((*) (lambda (x y) (v:dot x y)))
 	    ((negate) (lambda (x) (v:negate x)))
 	    (else
 	     (lambda args
@@ -164,4 +169,18 @@
 
 (+ #(1 2 3) #(4 b 6))
 ;Value 427: #(5 (+ b 2) 9)
+
+; 2.2 (c) Dot products
+
+(* #(1 2 3) #(4 5 6))
+;Value: 32
+
+(* #(1 2 3) #(4 5 a))
+;Value 604: (+ (* a 3) 14)
+
+
+
+
+
+
 
