@@ -107,25 +107,72 @@ Tests:
 
 ; 3.1 (c)
 
+;;; Here is one way to do something like this:
+
 (define (n:vector . args) (apply vector args))
+
+(register-predicate! list? 'list)
 
 (define vector-new (simple-generic-procedure 'vector-new 2))
 (define-generic-procedure-handler vector-new
-  (all-args 2 number?)
+  (all-args 2 (disjoin number? symbol? list?))
   (lambda (a b) (n:vector a b)))
 (define-generic-procedure-handler vector-new
   (all-args 2 function?)
-  (lambda (a b) (lambda (x) (n:vector (a x) (b x)))))
-
-
+  (lambda (a b) (lambda (x) (vector-new (a x) (b x)))))
 
 #|
 Tests:
 
+; Vectors of numbers:
+(vector-new 1 2)
+;Value 22: #(1 2)
+
+; Vectors of functions:
 ((vector-new sin cos) 'a)
 ;Value 34: #((sin a) (cos a))
 
+((vector-new cos sin) 3)
+;Value 25: #(-.9899924966004454 .1411200080598672)
 
-((vector-new sin cos) 'a)
-;Value 34: #((sin a) (cos a))
+
+; We can even have vectors of (functions that return functions)!
+ 
+(define cos-mult
+  (lambda (a)
+    (lambda (x)
+      (cos (* a x)))))
+
+(define sin-mult
+  (lambda (a)
+    (lambda (x)
+      (sin (* a x)))))
+
+
+(((vector-new cos-mult sin-mult) 2) 'a)
+;Value 66: #((cos (* 2 a)) (sin (* 2 a)))
+
+; Can still take dot products because this new vector type still returns a vector
+(* (vector-new 2 3) (vector-new 1 2))
+;Value: 8
+
+; Can take dot product of this new vector type as well, even when it's still left in functional form:
+((* (vector-new cos sin) (vector-new cos sin)) 'a)
+;Value 76: (+ (* (sin a) (sin a)) (* (cos a) (cos a)))
+
+
+; Can even compute the magnitude of it:
+
+(magnitude (vector-new cos sin))
+;Value 77: #[compound-procedure 77]
+
+((magnitude (vector-new cos sin)) 'a)
+;Value 78: (sqrt (+ (* (sin a) (sin a)) (* (cos a) (cos a))))
+
+
+This does have a couple of shortcomings:
+1) We could not use the function name "vector" - had to give it the new name "vector-new". Trying to overwrite the name "vector" would cause all calls to "vector" to hang indefinitely and never produce a result.
+2) This only supports fixed-length vectors - in this case, vectors of length 2 - because we had to define "vector-new" as a generic procedure taking a certain number of arguments, rather than before where we just had generic procedures which take vectors as arguments (where those vectors could be of arbitrary length).
 |#
+
+
