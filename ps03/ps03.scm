@@ -1,3 +1,5 @@
+#|
+
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
@@ -78,13 +80,14 @@
 	       (error "Operator undefined in Vector" operator)))))))))
 
 ;;; Problem 3.1
-
+|#
 
 #|
 3.1 (b)
 The generic system is able to support both expressions, using the code below:
 |#
 
+#|
 (let ((g (make-generic-arithmetic simple-generic-dispatcher)))
   (add-to-generic-arithmetic! g numeric-arithmetic)
   (extend-generic-arithmetic! g symbolic-extender)
@@ -94,6 +97,7 @@ The generic system is able to support both expressions, using the code below:
 
 (define (unit-circle x)
   (vector (sin x) (cos x)))
+|#
 
 #|
 Tests:
@@ -108,7 +112,7 @@ Tests:
 ; 3.1 (c)
 
 ;;; Here is one way to do something like this:
-
+#|
 (define (n:vector . args) (apply vector args))
 
 (register-predicate! list? 'list)
@@ -120,6 +124,7 @@ Tests:
 (define-generic-procedure-handler vector-new
   (all-args 2 function?)
   (lambda (a b) (lambda (x) (vector-new (a x) (b x)))))
+|#
 
 #|
 Tests:
@@ -174,5 +179,80 @@ This does have a couple of shortcomings:
 1) We could not use the function name "vector" - had to give it the new name "vector-new". Trying to overwrite the name "vector" would cause all calls to "vector" to hang indefinitely and never produce a result.
 2) This only supports fixed-length vectors - in this case, vectors of length 2 - because we had to define "vector-new" as a generic procedure taking a certain number of arguments, rather than before where we just had generic procedures which take vectors as arguments (where those vectors could be of arbitrary length).
 |#
+
+
+; 3.5
+
+#|
+(ge (make-top-level-environment))
+(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(load "load.scm")
+
+(define trie-full-generic-arithmetic
+  (let ((g (make-generic-arithmetic trie-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (add-to-generic-arithmetic! g
+      (symbolic-extender numeric-arithmetic))
+    (extend-generic-arithmetic! g function-extender)
+    g))
+(install-arithmetic! trie-full-generic-arithmetic)
+
+(+ 'a ((+ 'c cos sin) (* 2 'b)))
+;Value 137: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
+|#
+
+#|
+(ge (make-top-level-environment))
+(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(load "load.scm")
+
+(define trie-full-generic-arithmetic
+  (let ((g (make-generic-arithmetic trie-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (extend-generic-arithmetic! g function-extender)
+    (add-to-generic-arithmetic! g
+      (symbolic-extender numeric-arithmetic))
+    g))
+(install-arithmetic! trie-full-generic-arithmetic)
+
+(+ 'a ((+ 'c cos sin) (* 2 'b)))
+;Value 151: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
+|#
+
+; Using tries, there appears to be no dependence on order. 
+; However, cannot reproduce ordering issue from first section, using simple-generic-dispatcher:
+
+
+(ge (make-top-level-environment))
+(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(load "load.scm")
+
+
+(let ((g (make-generic-arithmetic simple-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (add-to-generic-arithmetic! g
+      (symbolic-extender numeric-arithmetic))
+    (extend-generic-arithmetic! g function-extender)
+    (install-arithmetic! g))
+
+(+ 'a ((+ 'c cos sin) (* 2 'b)))
+;Value 155: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
+
+
+
+(ge (make-top-level-environment))
+(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(load "load.scm")
+
+
+(let ((g (make-generic-arithmetic simple-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (extend-generic-arithmetic! g function-extender)
+    (add-to-generic-arithmetic! g
+      (symbolic-extender numeric-arithmetic))
+    (install-arithmetic! g))
+
+(+ 'a ((+ 'c cos sin) (* 2 'b)))
+;Value 161: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
 
 
