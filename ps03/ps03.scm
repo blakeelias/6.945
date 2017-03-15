@@ -1,4 +1,4 @@
-#|
+
 
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
@@ -80,14 +80,14 @@
 	       (error "Operator undefined in Vector" operator)))))))))
 
 ;;; Problem 3.1
-|#
+
 
 #|
 3.1 (b)
 The generic system is able to support both expressions, using the code below:
 |#
 
-#|
+
 (let ((g (make-generic-arithmetic simple-generic-dispatcher)))
   (add-to-generic-arithmetic! g numeric-arithmetic)
   (extend-generic-arithmetic! g symbolic-extender)
@@ -97,7 +97,7 @@ The generic system is able to support both expressions, using the code below:
 
 (define (unit-circle x)
   (vector (sin x) (cos x)))
-|#
+
 
 #|
 Tests:
@@ -183,6 +183,8 @@ This does have a couple of shortcomings:
 
 ; 3.5
 
+; (a)
+
 #|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
@@ -222,7 +224,7 @@ This does have a couple of shortcomings:
 ; Using tries, there appears to be no dependence on order. 
 ; However, cannot reproduce ordering issue from first section, using simple-generic-dispatcher:
 
-
+#|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
@@ -237,9 +239,9 @@ This does have a couple of shortcomings:
 
 (+ 'a ((+ 'c cos sin) (* 2 'b)))
 ;Value 155: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
+|#
 
-
-
+#|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
@@ -254,5 +256,20 @@ This does have a couple of shortcomings:
 
 (+ 'a ((+ 'c cos sin) (* 2 'b)))
 ;Value 161: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
+|#
 
+; 3.5 (b)
+#|
+There can be more than one appropriate handler for a sequence of arguments if there is an argument that satisfies two different predicates, with each predicate satisfying a different handler. For instance, '(1 2) satisfies both symbolic? and list?, each of which may have its own handler.
 
+(symbolic? '(1 2))
+;Value: #t
+
+(list? '(1 2))
+;Value: #t
+|#
+
+; 3.5 (c)
+#|
+In the generic arithmetic code we have written so far, there are no such situations. The predicates symbolic?, vector? and number? are mutually exclusive. 
+|#
