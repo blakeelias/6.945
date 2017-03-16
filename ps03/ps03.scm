@@ -273,3 +273,11 @@ There can be more than one appropriate handler for a sequence of arguments if th
 #|
 In the generic arithmetic code we have written so far, there are no such situations. The predicates symbolic?, vector? and number? are mutually exclusive. 
 |#
+
+
+
+
+
+
+
+
