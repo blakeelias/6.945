@@ -181,6 +181,36 @@ This does have a couple of shortcomings:
 |#
 
 
+; 3.2
+
+
+(define (symbolic-extender base-arithmetic)
+  (make-arithmetic 'symbolic symbolic? (list base-arithmetic)
+    (lambda (name base-constant)
+      (default-object))
+    (let ((base-predicate
+           (arithmetic-domain-predicate base-arithmetic)))
+      (lambda (operator base-operation)
+        (make-operation operator
+                        (any-arg (operator-arity operator)
+                                 symbolic?
+                                 base-predicate)
+                        (lambda args (cons operator args)))))))
+						
+
+(define g (make-generic-arithmetic simple-generic-dispatcher))
+(add-to-generic-arithmetic! g numeric-arithmetic)
+(extend-generic-arithmetic! g symbolic-extender)
+(install-arithmetic! g)
+
+(display (+))
+(newline)
+(display (*))
+(newline)
+(display (-))
+(newline)
+
+
 ; 3.5
 
 ; (a)
