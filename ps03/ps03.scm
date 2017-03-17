@@ -182,7 +182,7 @@ This does have a couple of shortcomings:
 
 
 ; 3.2
-
+#|
 (display "In problem 3.2")
 
 (display (+))
@@ -220,6 +220,7 @@ This does have a couple of shortcomings:
 (display (* (+)))
 (display (+ (*)))
 (display (* 'a 'b))
+|#
 
 ; 3.5
 
@@ -315,7 +316,27 @@ In the generic arithmetic code we have written so far, there are no such situati
 |#
 
 
+; 3.6
 
+#|
+There may be two predicates that are mathematically the same function (i.e. will gave the same outputs for the same inputs), but in Scheme will not be seen as the same procedure, if they are produced from a procedure like conjoin or disjoin. This will cause there to be separate branches in the trie representing these two "different" predicates, thus turning one branch into two (and causing everything downstream of that branch to have a duplicate, I think, in the other branch - really, duplicating a sub-trie and not just a branch). 
+
+By memoizing disjoin and conjoin, we can make sure that these mathematically identical functions will also be returned as the same procedure, so that they will be seen as eqv? by Scheme.
+|#
+
+(define disjoin-copy disjoin)
+(define disjoin (memoize-multi-arg-eqv disjoin-copy))
+
+(define conjoin-copy conjoin)
+(define conjoin (memoize-multi-arg-eqv conjoin-copy))
+
+#|
+(eqv? (disjoin symbolic? number?) (disjoin symbolic? number?))
+;Value: #t
+
+(eqv? (conjoin symbolic? number?) (conjoin symbolic? number?))
+;Value: #t
+|#
 
 
 
