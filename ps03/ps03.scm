@@ -183,6 +183,16 @@ This does have a couple of shortcomings:
 
 ; 3.2
 
+(display "In problem 3.2")
+
+(display (+))
+(display (*))
+(display (+ (+)))
+(display (* (*)))
+(display (* (+)))
+(display (+ (*)))
+
+(display "new arithmetic")
 
 (define (symbolic-extender base-arithmetic)
   (make-arithmetic 'symbolic symbolic? (list base-arithmetic)
@@ -197,19 +207,19 @@ This does have a couple of shortcomings:
                                  base-predicate)
                         (lambda args (cons operator args)))))))
 						
-
 (define g (make-generic-arithmetic simple-generic-dispatcher))
-(add-to-generic-arithmetic! g numeric-arithmetic)
-(extend-generic-arithmetic! g symbolic-extender)
+(add-to-generic-arithmetic! g (symbolic-extender numeric-arithmetic))
 (install-arithmetic! g)
 
-(display (+))
-(newline)
-(display (*))
-(newline)
-(display (-))
-(newline)
+(display "new arithmetic tests")
 
+(display (+))
+(display (*))
+(display (+ (+)))
+(display (* (*)))
+(display (* (+)))
+(display (+ (*)))
+(display (* 'a 'b))
 
 ; 3.5
 
