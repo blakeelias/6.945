@@ -1,5 +1,5 @@
-
-
+					
+#|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
@@ -79,6 +79,8 @@
 	     (lambda args
 	       (error "Operator undefined in Vector" operator)))))))))
 
+|#
+
 ;;; Problem 3.1
 
 
@@ -87,7 +89,7 @@
 The generic system is able to support both expressions, using the code below:
 |#
 
-
+#|
 (let ((g (make-generic-arithmetic simple-generic-dispatcher)))
   (add-to-generic-arithmetic! g numeric-arithmetic)
   (extend-generic-arithmetic! g symbolic-extender)
@@ -97,7 +99,7 @@ The generic system is able to support both expressions, using the code below:
 
 (define (unit-circle x)
   (vector (sin x) (cos x)))
-
+|#
 
 #|
 Tests:
@@ -226,6 +228,9 @@ This does have a couple of shortcomings:
 
 ; (a)
 
+; No, there is still the same dependence on order -- the last extender that is applied is the one that takes priority. 
+
+; Try it in one order:
 #|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
@@ -234,69 +239,50 @@ This does have a couple of shortcomings:
 (define trie-full-generic-arithmetic
   (let ((g (make-generic-arithmetic trie-generic-dispatcher)))
     (add-to-generic-arithmetic! g numeric-arithmetic)
-    (add-to-generic-arithmetic! g
-      (symbolic-extender numeric-arithmetic))
+    (extend-generic-arithmetic! g symbolic-extender)
     (extend-generic-arithmetic! g function-extender)
     g))
 (install-arithmetic! trie-full-generic-arithmetic)
+|#
 
+; It works!
+#|
 (+ 'a ((+ 'c cos sin) (* 2 'b)))
 ;Value 137: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
 |#
 
+
+; Try the other order!
 #|
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
+
 
 (define trie-full-generic-arithmetic
   (let ((g (make-generic-arithmetic trie-generic-dispatcher)))
     (add-to-generic-arithmetic! g numeric-arithmetic)
     (extend-generic-arithmetic! g function-extender)
-    (add-to-generic-arithmetic! g
-      (symbolic-extender numeric-arithmetic))
+    (extend-generic-arithmetic! g symbolic-extender)
     g))
 (install-arithmetic! trie-full-generic-arithmetic)
-
-(+ 'a ((+ 'c cos sin) (* 2 'b)))
-;Value 151: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
 |#
 
-; Using tries, there appears to be no dependence on order. 
-; However, cannot reproduce ordering issue from first section, using simple-generic-dispatcher:
-
+; Doesn't work:
 #|
-(ge (make-top-level-environment))
-(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
-(load "load.scm")
-
-
-(let ((g (make-generic-arithmetic simple-generic-dispatcher)))
-    (add-to-generic-arithmetic! g numeric-arithmetic)
-    (add-to-generic-arithmetic! g
-      (symbolic-extender numeric-arithmetic))
-    (extend-generic-arithmetic! g function-extender)
-    (install-arithmetic! g))
-
 (+ 'a ((+ 'c cos sin) (* 2 'b)))
-;Value 155: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
-|#
+;The object (+ (+ c #[compound-procedure 81]) #[compound-procedure 82]) is not applicable.
+;To continue, call RESTART with an option number:
+; (RESTART 8) => Specify a procedure to use in its place.
+; (RESTART 7) => Return to read-eval-print level 7.
+; (RESTART 6) => Return to read-eval-print level 6.
+; (RESTART 5) => Return to read-eval-print level 5.
+; (RESTART 4) => Return to read-eval-print level 4.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): 
 
-#|
-(ge (make-top-level-environment))
-(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
-(load "load.scm")
-
-
-(let ((g (make-generic-arithmetic simple-generic-dispatcher)))
-    (add-to-generic-arithmetic! g numeric-arithmetic)
-    (extend-generic-arithmetic! g function-extender)
-    (add-to-generic-arithmetic! g
-      (symbolic-extender numeric-arithmetic))
-    (install-arithmetic! g))
-
-(+ 'a ((+ 'c cos sin) (* 2 'b)))
-;Value 161: (+ a (+ (+ c (cos (* 2 b))) (sin (* 2 b))))
 |#
 
 ; 3.5 (b)
@@ -312,7 +298,7 @@ There can be more than one appropriate handler for a sequence of arguments if th
 
 ; 3.5 (c)
 #|
-In the generic arithmetic code we have written so far, there are no such situations. The predicates symbolic?, vector? and number? are mutually exclusive. 
+In the generic arithmetic code we have written so far, there are no such situations. The predicates symbolic?, vector?, number? and function? are mutually exclusive. However, if one defined some new argument predicates which had overlap with these existing ones (eg. (or vector? number?), which will have overlap with vector? in terms of which arguments it returns #t for), then there can be more than one handler for a sequence of arguments.
 |#
 
 
@@ -324,11 +310,13 @@ There may be two predicates that are mathematically the same function (i.e. will
 By memoizing disjoin and conjoin, we can make sure that these mathematically identical functions will also be returned as the same procedure, so that they will be seen as eqv? by Scheme.
 |#
 
+#|
 (define disjoin-copy disjoin)
 (define disjoin (memoize-multi-arg-eqv disjoin-copy))
 
 (define conjoin-copy conjoin)
 (define conjoin (memoize-multi-arg-eqv conjoin-copy))
+|#
 
 #|
 (eqv? (disjoin symbolic? number?) (disjoin symbolic? number?))
@@ -336,6 +324,85 @@ By memoizing disjoin and conjoin, we can make sure that these mathematically ide
 
 (eqv? (conjoin symbolic? number?) (conjoin symbolic? number?))
 ;Value: #t
+|#
+
+
+; 3.7
+#|
+(ge (make-top-level-environment))
+(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(load "load.scm")
+
+(define full-generic-arithmetic
+  (let ((g (make-generic-arithmetic simple-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (extend-generic-arithmetic! g function-extender)
+    (add-to-generic-arithmetic! g 
+				(symbolic-extender numeric-arithmetic))
+    g))
+
+(define trie-full-generic-arithmetic
+  (let ((g (make-generic-arithmetic trie-generic-dispatcher)))
+    (add-to-generic-arithmetic! g numeric-arithmetic)
+    (add-to-generic-arithmetic! g
+      (symbolic-extender numeric-arithmetic))
+    (extend-generic-arithmetic! g function-extender)
+    g))
+
+ (install-arithmetic! full-generic-arithmetic)
+
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+
+; (install-arithmetic! trie-full-generic-arithmetic)
+
+(with-predicate-counts ( lambda () ( fib 20) ))
+
+;Value 565: #[package 565 (uninstall (generic))]
+|#
+
+#|
+with trie-full-generic-arithmetic:
+
+(10946 (disjoin any-object function))
+(10946 (disjoin number symbolic))
+(21892 (disjoin any-object function))
+(21891 (disjoin any-object function))
+(109453 function)
+(109453 symbolic)
+(109453 number)
+(21891 (disjoin number symbolic))
+(21892 (disjoin number symbolic))
+;Value: 6765
+|#
+
+
+#|
+
+with full-generic-arithmetic
+
+(21892 (disjoin any-object function))
+(10946 (disjoin any-object function))
+(109453 symbolic)
+(109453 function)
+(109453 number)
+(10946 (disjoin number symbolic))
+(21892 (disjoin number symbolic))
+(21891 (disjoin number symbolic))
+(21891 (disjoin any-object function))
+;Value: 6765
+
+|#
+
+
+#|
+
+With the list-of-predicate-lists approach, it is possible that one of the first few predicate lists that gets tried actually matches the arguments, and so the program quickly arrives at the correct matching of arguments to predicates. Whereas with trie-lookup, you have to test the first argument against every predicate at the first level of the trie, to find all the ones that match. And then from those that match, you have to explore every possible branch coming off of those first-level nodes. So tries help us avoid redundant calls, but potentially still do some calls which are extraneous.
+
+On the other hand, if there are many rules which share a common pre-fix, then tries will be more efficient. Because if the arguments *don't* match that prefix of predicates, then the predicates in that sub-trie will not have to be explored at all. Whereas in the rule-based version, all those irrelevant rules would still have to be tested one-by-one.
+
 |#
 
 
