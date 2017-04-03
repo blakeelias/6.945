@@ -1,7 +1,7 @@
 					
 
 (ge (make-top-level-environment))
-(cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
+(cd "/mit/eliasb/Desktop/6.945/ps03/code")
 (load "load.scm")
 
 ;;; Vector Extender (from ps02)
@@ -445,4 +445,23 @@ On the other hand, if there are many rules which share a common pre-fix, then tr
       (+ (fib (- n 1)) (fib (- n 2)))))
 
 (with-predicate-counts ( lambda () ( fib 20) ))
+
+#|
+(2 (disjoin any-object symbolic))
+(7 function)
+(2 (disjoin any-object function))
+(2 (disjoin any-object symbolic))
+(2 (disjoin any-object symbolic))
+(2 (disjoin any-object function))
+(7 number)
+(2 (disjoin any-object function))
+(4 vector)
+(7 symbolic)
+;Value: 6765
+
+; many fewer calls to each predicate!!
+|#
+
+(with-predicate-counts ( lambda () (test-stormer-counts) ))
+
 
