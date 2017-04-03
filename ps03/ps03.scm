@@ -1,5 +1,5 @@
 					
-#|
+
 (ge (make-top-level-environment))
 (cd "/Users/blake/Dropbox\ (MIT)/Classes/6.945/ps03/code")
 (load "load.scm")
@@ -79,7 +79,7 @@
 	     (lambda args
 	       (error "Operator undefined in Vector" operator)))))))))
 
-|#
+
 
 ;;; Problem 3.1
 
@@ -96,7 +96,7 @@ The generic system is able to support both expressions, using the code below:
   (extend-generic-arithmetic! g function-extender)
   (extend-generic-arithmetic! g vector-extender)
   (install-arithmetic! g))
-
+a
 (define (unit-circle x)
   (vector (sin x) (cos x)))
 |#
@@ -358,7 +358,7 @@ By memoizing disjoin and conjoin, we can make sure that these mathematically ide
 
 ; (install-arithmetic! trie-full-generic-arithmetic)
 
-(with-predicate-counts ( lambda () ( fib 20) ))
+; (with-predicate-counts ( lambda () ( fib 20) ))
 
 ;Value 565: #[package 565 (uninstall (generic))]
 |#
@@ -408,4 +408,41 @@ On the other hand, if there are many rules which share a common pre-fix, then tr
 
 
 
+
+
+; Problem 4.0
+
+
+(define (generic-dispatcher)
+  (cached-generic-dispatcher implementation-type-name))
+
+(define (cached-generic-dispatcher get-key)
+  (make-cached-generic-dispatcher (simple-generic-dispatcher)
+				  get-key))
+
+(define (make-cached-generic-dispatcher base-dispatcher get-key)
+  (let ((get-handler
+	 (simple-list-memoizer eqv?
+			       hash-by-eqv
+			       (lambda (args) (map get-key args))
+			       (base-dispatcher 'get-handler))))
+    (lambda (message)
+      (case message
+	((get-handler) get-handler)
+	(else (base-dispatcher message))))))
+
+(let ((g (make-generic-arithmetic generic-dispatcher)))
+  (add-to-generic-arithmetic! g numeric-arithmetic)
+  (extend-generic-arithmetic! g symbolic-extender)
+  (extend-generic-arithmetic! g function-extender)
+  (extend-generic-arithmetic! g vector-extender)
+  (install-arithmetic! g))
+
+
+(define (fib n)
+  (if (< n 2)
+      n
+      (+ (fib (- n 1)) (fib (- n 2)))))
+
+(with-predicate-counts ( lambda () ( fib 20) ))
 
