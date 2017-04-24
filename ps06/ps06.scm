@@ -25,3 +25,50 @@ eval> (cos 0.6)
 
 |#
 
+#|
+ Problem 3
+|#
+
+(defhandler eval
+  (lambda (expression environment)
+    (call-with-current-continuation
+     (lambda (cont)
+       (bind-condition-handler
+        '()
+        (lambda (e)
+          (cont expression)) ;; self-evaluate
+        (lambda () (lookup-variable-value expression environment))))))
+  variable?)
+
+(define (disjoin . predicates)
+  (disjoin* predicates))
+
+(define (disjoin* predicates)
+;  (guarantee-list-of predicate? predicates)
+  (lambda (object)
+    (any (lambda (predicate)
+	   (predicate object))
+	 predicates)))
+
+
+(define n:* *)
+(define n:/ /)
+(define n:+ +)
+(define n:- -)
+
+(define * (make-generic-operator 2 '* n:*))
+(defhandler * (lambda (x y) `(* ,x ,y)) (disjoin variable? list?) number?)
+(defhandler * (lambda (x y) `(* ,x ,y)) number? (disjoin variable? list?))
+
+(define / (make-generic-operator 2 '/ n:/))
+(defhandler / (lambda (x y) `(/ ,x ,y)) (disjoin variable? list?) number?)
+(defhandler / (lambda (x y) `(/ ,x ,y)) number? (disjoin variable? list?))
+
+(define + (make-generic-operator 2 '+ n:+))
+(defhandler + (lambda (x y) `(+ ,x ,y)) (disjoin variable? list?) number?)
+(defhandler + (lambda (x y) `(+ ,x ,y)) number? (disjoin variable? list?))
+
+(define - (make-generic-operator 2 '- n:-))
+(defhandler - (lambda (x y) `(- ,x ,y)) (disjoin variable? list?) number?)
+(defhandler - (lambda (x y) `(- ,x ,y)) number? (disjoin variable? list?))
+
