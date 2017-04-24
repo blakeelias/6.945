@@ -59,16 +59,19 @@ eval> (cos 0.6)
 (define * (make-generic-operator 2 '* n:*))
 (defhandler * (lambda (x y) `(* ,x ,y)) (disjoin variable? list?) number?)
 (defhandler * (lambda (x y) `(* ,x ,y)) number? (disjoin variable? list?))
+(defhandler * (lambda (x y) `(* ,x ,y)) (disjoin variable? list?) (disjoin variable? list?))
 
 (define / (make-generic-operator 2 '/ n:/))
 (defhandler / (lambda (x y) `(/ ,x ,y)) (disjoin variable? list?) number?)
 (defhandler / (lambda (x y) `(/ ,x ,y)) number? (disjoin variable? list?))
+(defhandler / (lambda (x y) `(/ ,x ,y)) (disjoin variable? list?) (disjoin variable? list?))
 
 (define + (make-generic-operator 2 '+ n:+))
 (defhandler + (lambda (x y) `(+ ,x ,y)) (disjoin variable? list?) number?)
 (defhandler + (lambda (x y) `(+ ,x ,y)) number? (disjoin variable? list?))
+(defhandler + (lambda (x y) `(+ ,x ,y)) (disjoin variable? list?) (disjoin variable? list?))
 
 (define - (make-generic-operator 2 '- n:-))
 (defhandler - (lambda (x y) `(- ,x ,y)) (disjoin variable? list?) number?)
 (defhandler - (lambda (x y) `(- ,x ,y)) number? (disjoin variable? list?))
-
+(defhandler - (lambda (x y) `(- ,x ,y)) (disjoin variable? list?) (disjoin variable? list?))
