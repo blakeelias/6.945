@@ -22,4 +22,3 @@
 ;;; (load "kons" generic-evaluation-environment)
 
 (ge generic-evaluation-environment)
-
