@@ -75,3 +75,24 @@ eval> (cos 0.6)
 (defhandler - (lambda (x y) `(- ,x ,y)) (disjoin variable? list?) number?)
 (defhandler - (lambda (x y) `(- ,x ,y)) number? (disjoin variable? list?))
 (defhandler - (lambda (x y) `(- ,x ,y)) (disjoin variable? list?) (disjoin variable? list?))
+
+
+
+; 3 (b)
+
+(defhandler apply
+  (lambda (procedure-name operands calling-environment)
+    (cons procedure-name operands))
+  symbol?)
+
+#|
+  Tests:
+
+(init)
+
+eval> (f 1 2)
+(f 1 2)
+
+eval> (+ (f 3) (* 4 5))
+(+ (f 3) 20)
+|#

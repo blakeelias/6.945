@@ -9,16 +9,16 @@
 (define generic-evaluation-environment 
   (access generic-evaluation-environment user-initial-environment))
 
-(load "utils" user-initial-environment)
-(load "ghelper" user-initial-environment)
-(load "syntax" user-initial-environment)
-(load "rtdata" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/utils" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/ghelper" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/syntax" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/rtdata" user-initial-environment)
 
-(load "interp" generic-evaluation-environment)
-(load "repl" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/interp" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/repl" generic-evaluation-environment)
 
 ;;; This allows nonstrict definitions.
-;;; (load "general-procedures" generic-evaluation-environment)
-;;; (load "kons" generic-evaluation-environment)
+;;; (load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/general-procedures" generic-evaluation-environment)
+;;; (load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/kons" generic-evaluation-environment)
 
 (ge generic-evaluation-environment)
