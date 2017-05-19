@@ -25,6 +25,16 @@ eval> (cos 0.6)
 
 |#
 
+
+#|
+ Problem 2
+
+This does not work because built-in procedures that take procedural arguments, such as map, were defined under the built-in eval/apply definitions. In the built-in "apply" procedure, compound procedures that we pass in from our new interpreter don't appear to be applicable, because our compound procedure record type is different from the underlying one, and the compound-procedure? predicate in our interpreter is different from the underlying one. 
+
+A strategy for fixing this would be to get our new interpreter to use the same compound-procedure record type as the underlying Scheme.
+
+|#
+
 #|
  Problem 3
 |#
@@ -190,3 +200,4 @@ eval> (f 2 3) ; Can still call procedures that are defined, and not just get bac
 6
 
 |#
+
