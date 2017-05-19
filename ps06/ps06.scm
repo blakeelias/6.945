@@ -103,3 +103,90 @@ eval> (+ (f 3) (* 4 5))
   (set! the-global-environment
   (extend-environment '(ALLOW-SELF-EVALUATING-SYMBOLS) '(#f) the-empty-environment))
   (repl))
+
+(defhandler eval
+  (lambda (expression environment)
+    (if (not (lookup-variable-value 'ALLOW-SELF-EVALUATING-SYMBOLS environment))
+	(lookup-variable-value expression environment)
+	(call-with-current-continuation
+	 (lambda (cont)
+	   (bind-condition-handler
+	       '()
+	       (lambda (e)
+		 (cont 
+		  expression)) ;; catch error
+	     ;; self-evaluate
+	     (lambda ()
+	       (lookup-variable-value expression environment) ;; "try"
+	       ))))))
+  variable?)
+
+(defhandler apply
+  (lambda (procedure-name operands calling-environment)
+    (if (not (lookup-variable-value 'ALLOW-SELF-EVALUATING-SYMBOLS calling-environment))
+	(error (string-append "Unbound variable:" (symbol->string procedure-name)))
+	(cons procedure-name operands)))
+  symbol?)
+
+
+#| Tests:
+
+
+(init)
+
+eval> (+ (* 2 3) (* 4 5))
+26
+
+eval> (+ (* a 3) (* 4 5))
+
+;Unbound variable: a
+;To continue, call RESTART with an option number:
+; (RESTART 10) => Specify a value to use instead of a.
+; (RESTART 9) => Define a to a given value.
+; (RESTART 8) => Return to read-eval-print level 8.
+; (RESTART 7) => Return to read-eval-print level 7.
+; (RESTART 6) => Return to read-eval-print level 6.
+; (RESTART 5) => Return to read-eval-print level 5.
+; (RESTART 4) => Return to read-eval-print level 4.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+(go)
+
+eval> (f 1 2)
+
+;Unbound variable: f
+;To continue, call RESTART with an option number:
+; (RESTART 11) => Specify a value to use instead of f.
+; (RESTART 10) => Define f to a given value.
+; (RESTART 9) => Return to read-eval-print level 9.
+; (RESTART 8) => Return to read-eval-print level 8.
+; (RESTART 7) => Return to read-eval-print level 7.
+; (RESTART 6) => Return to read-eval-print level 6.
+; (RESTART 5) => Return to read-eval-print level 5.
+; (RESTART 4) => Return to read-eval-print level 4.
+; (RESTART 3) => Return to read-eval-print level 3.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+(go)
+
+eval> (set! ALLOW-SELF-EVALUATING-SYMBOLS #t)
+#!unspecific
+
+eval> (+ (* a 3) (* 4 5))
+(+ (* a 3) 20)
+
+eval> (f 1 2)
+(f 1 2)
+
+eval> (define (f x y) (* x y))
+f
+
+eval> (f 2 3) ; Can still call procedures that are defined, and not just get back (f 2 3):
+6
+
+|#
