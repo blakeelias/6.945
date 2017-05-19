@@ -96,3 +96,10 @@ eval> (f 1 2)
 eval> (+ (f 3) (* 4 5))
 (+ (f 3) 20)
 |#
+
+;; Now, to allow these extensions only if the user sets the value ALLOW-SELF-EVALUATING-SYMBOLS to #t:
+
+(define (init)
+  (set! the-global-environment
+  (extend-environment '(ALLOW-SELF-EVALUATING-SYMBOLS) '(#f) the-empty-environment))
+  (repl))
