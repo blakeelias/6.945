@@ -5,16 +5,16 @@
 		    'generic-evaluation-environment
 		    (extend-top-level-environment user-initial-environment))
 
-(load "utils" user-initial-environment)
-(load "time-share" user-initial-environment)
-(load "schedule" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/utils" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/time-share" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/schedule" user-initial-environment)
 
-(load "ghelper" user-initial-environment)
-(load "syntax" user-initial-environment)
-(load "rtdata" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/ghelper" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/syntax" user-initial-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/rtdata" user-initial-environment)
 
-(load "interp-actor" generic-evaluation-environment)
-(load "repl" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/interp-actor" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps09/code/repl" generic-evaluation-environment)
 
 ;; 
 
