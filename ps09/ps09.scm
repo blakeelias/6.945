@@ -36,6 +36,7 @@ But I suppose it can't hurt to try something like this....
 
 ; (b)
 
+#|
 (defhandler apply
   (lambda (actor operands calling-environment)
     (if (not (= (length (actor-parameters actor))
@@ -62,7 +63,7 @@ But I suppose it can't hurt to try something like this....
       'actor-applied))
   actor-procedure?)
 
-
+|#
 
 
 ; (c)
@@ -82,5 +83,229 @@ Problem 4:
 
 (a) This is slow because it does not do any memoization, while a doubly-recursive function would. 
 
+(b) My guess is that, the two recursive calls to `fib2' finish at roughly the same time, so `x' and `y' get set at about the same time. Then, the two recursive calls each check whether both x and y are set... and both will find that both variables are set! So both of them will call (c (+ x y)). This can be fixed by making the setting and checking happen together, atomically, as below, so that only one of them will find both variables as set (the second one will find this, and not the first). 
+
+Code and tests below:
+
+-----
+
+
+(init)
+
+eval> (define fib2
+       (alpha (n c)
+         (if (< n 2)
+             (c n)
+             (let ((x 'not-ready) (y 'not-ready))
+               (define check-if-done
+                 (lambda ()
+                   (if (boolean/or (eq? x 'not-ready)
+                                   (eq? y 'not-ready))
+#f
+                       (c (+ x y)))))
+               (fib2 (- n 1)
+                     (lambda (v)
+                      (atomically (lambda ()
+                       (set! x v)
+                       (check-if-done)))))
+               (fib2 (- n 2)
+                     (lambda (v)
+                      (atomically (lambda ()
+                       (set! y v)
+                       (check-if-done)))))))))
+fib2
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 12 write-line)
+actor-applied
+144
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+eval> (fib2 9 write-line)
+actor-applied
+34
+
+
+
+The above results are pretty promising: in 36 tests, 0 had multiple prints. Whereas with the original version of fib2, in 9 testss, 2 did multiple-prints (shown below). (I used the same numerical argument to fib2, as well.) Stop telling us things are "very hard" when they're quite simple to solve!!! (At least, I think I've solved this one...)
+
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 10 write-line)
+actor-applied
+55
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+
+eval> (fib2 8 write-line)
+actor-applied
+21
+21
+
+eval> (fib2 14 write-line)
+actor-applied
+377
+
+eval> (fib2 14 write-line)
+actor-applied
+377
+
+eval> (fib2 14 write-line)
+actor-applied
+377
+377
+
+
+|#
+
+
+#| Problem 5:
 
 |#
