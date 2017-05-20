@@ -81,7 +81,9 @@ This is relevant in set-variable-value! and define-variable! because both of tho
 #|
 Problem 4:
 
-(a) This is slow because it does not do any memoization, while a doubly-recursive function would. 
+(a) What is meant by "doubly recursive"? If it means recursive on two arguments (as described here: https://en.wikipedia.org/wiki/Double_recursion), then I'm thinking of the memoized definition of `fib' that has two arguments (the last two numbers in the sequence) and is therefore able to act iteratively / do memoization, which is a reason why it would be faster.
+
+If, on the other hand, double recursive means making these two recursive calls to fib, without any memoization, then this one is likely slower because it is doing this busy-wait while it waits for `x' and `y' to both be ready...
 
 (b) My guess is that, the two recursive calls to `fib2' finish at roughly the same time, so `x' and `y' get set at about the same time. Then, the two recursive calls each check whether both x and y are set... and both will find that both variables are set! So both of them will call (c (+ x y)). This can be fixed by making the setting and checking happen together, atomically, as below, so that only one of them will find both variables as set (the second one will find this, and not the first). 
 
