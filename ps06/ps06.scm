@@ -196,8 +196,10 @@ eval> (f 1 2)
 eval> (define (f x y) (* x y))
 f
 
-eval> (f 2 3) ; Can still call procedures that are defined, and not just get back (f 2 3):
+eval> (f 2 3) 
 6
+
+; This last line shows that we can still call procedures that are defined and get the correct answer, and not just get back (f 2 3):
 
 |#
 
