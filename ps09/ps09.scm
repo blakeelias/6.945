@@ -308,6 +308,33 @@ actor-applied
 |#
 
 
-#| Problem 5:
+#| Problem 5 |#
 
+;(a)
+
+(define-record-type
+    future
+    (make-future cont done? value)
+    future?
+  (cont   continuation)
+  (done?  done?     set-done!)
+  (value  get-value set-value!))
+
+;(b)
+#|
+(define (future cont)
+  (make-future cont #f 'not-ready))
+
+(define (wait future cont)
+  (cont ((continuation future))))
+|#
+
+#|
+  (if (done? future)
+      ;(add-to-tasks!
+      ; actor
+       (lambda ()
+	 (cont (get-value future)))
+      ;)
+      #f))
 |#
