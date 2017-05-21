@@ -18,7 +18,7 @@
 (load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/repl" generic-evaluation-environment)
 
 ;;; This allows nonstrict definitions.
-;;; (load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/general-procedures" generic-evaluation-environment)
-;;; (load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/kons" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/general-procedures" generic-evaluation-environment)
+(load "/Users/blake/Dropbox (MIT)/Classes/6.945/ps06/code/kons" generic-evaluation-environment)
 
 (ge generic-evaluation-environment)

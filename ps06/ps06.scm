@@ -203,3 +203,70 @@ eval> (f 2 3)
 
 |#
 
+
+#|
+
+Problem 4:
+
+(a): KONS seems pretty good to me...
+
+(b) On executing that line, I get the following error:
+
+eval> (ref-stream (solve (lambda (x) x) 1 0.001) 1000)
+
+;Unbound variable: dy
+;To continue, call RESTART with an option number:
+; (RESTART 4) => Specify a value to use instead of dy.
+; (RESTART 3) => Define dy to a given value.
+; (RESTART 2) => Return to read-eval-print level 2.
+; (RESTART 1) => Return to read-eval-print level 1.
+;Start debugger? (y or n): n
+
+The problem is that `y' is defined to make use of `dy', but `dy' is defined in terms of `y'.
+
+This is fix-able by making all the stream arguments lazy - so that the stream itself does not have to be defined until its values need to be read. See below.
+
+
+(init)
+
+eval>  (define (add-streams s1 s2)
+ (kons (+ (car s1) (car s2))
+ (add-streams (cdr s1) (cdr s2))))
+add-streams
+
+eval>  (define (ref-stream stream n)
+ (if (= n 0)
+ (car stream)
+ (ref-stream (cdr stream) (- n 1))))
+ref-stream
+
+eval> (define (map-stream proc (items lazy))
+ (kons (proc (car items))
+ (map-stream proc (cdr items))))
+map-stream
+
+eval> (define (scale-stream (items lazy) factor)
+ (map-stream (lambda (x) (* x factor))
+ items))
+scale-stream
+
+eval> (define (integral (integrand lazy) initial-value dt)
+ (define int
+ (kons initial-value
+ (add-streams (scale-stream integrand dt)
+ int)))
+ int)
+integral
+
+eval> (define (solve f y0 dt)
+ (define y (integral dy y0 dt))
+ (define dy (map-stream f y))
+ y)
+solve
+
+eval> (ref-stream (solve (lambda (x) x) 1 0.001) 10)
+1.0100451202102523
+
+|#
+
+
