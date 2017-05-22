@@ -269,4 +269,64 @@ eval> (ref-stream (solve (lambda (x) x) 1 0.001) 10)
 
 |#
 
+#|
 
+Problem 5:
+
+(a) Some computations might have state which gets updated, in which case memoizing could be dangerous. The Fibonacci numbers is a pure mathematical function of its argument, but other data might not have this property. 
+
+(b) Well, let's see...
+
+eval> (define (kons2 (a lazy memo) (d lazy memo)) (cons a d))
+kons2
+
+eval> (kons2 1 2)
+(1 . 2)
+
+Uh-oh... that looks the same as cons...
+
+eval> (cons 1 2)
+(1 . 2)
+
+Whereas kons would have done something different:
+
+eval> (kons 1 2)
+(#(delayed-memo 1 #((solve integral scale-stream map-stream ref-stream add-streams allow-self-evaluating-symbols) (#[compound-procedure 68] #[compound-procedure 69] #[compound-procedure 70] #[compound-procedure 71] #[compound-procedure 72] #[compound-procedure 73] #f) (*the-empty-environment*))) . #(delayed-memo 2 #((solve integral scale-stream map-stream ref-stream add-streams allow-self-evaluating-symbols) (#[compound-procedure 68] #[compound-procedure 69] #[compound-procedure 70] #[compound-procedure 71] #[compound-procedure 72] #[compound-procedure 73] #f) (*the-empty-environment*))))
+
+The problem is that lazy arguments only remain un-evaluated up until the point that they are needed for a computation that uses them. In the case of the given definition of kons, with `a' and `d' both lazy, both arguments immediately get used by being passed to `cons', and so both need to be evaluated right away, making them not so lazy...
+
+(c) The expressions inside the `kons' pair are susceptible to state changes. One example of something which could go wrong (depending what our understand of "wrong" is, in the particular situation...):
+
+eval> (define x 3)
+x
+
+eval> (cons x x)
+(3 . 3)
+
+eval> (define a (kons x x))
+a
+
+eval> (car a)
+3
+
+eval> (set! x 4)
+#!unspecific
+
+eval> (car a)
+3
+
+eval> (cdr a)
+4
+
+Here, we see that when the value of `x' changes, the value of any un-evaluated parts of a `kons' pair change - but the value of the previously evaluated parts does not. So, when `x' had initially been defined as 3 and then stored in (kons x x), when we went to retrieve a value from the pair later, we may be surprised that the value is 4. We may also be surprised that an object which was constructed as (kons x x) now has different values for its `car' and its `cdr'!
+
+|#
+
+#| 
+
+Problem 6
+
+
+
+
+|#
